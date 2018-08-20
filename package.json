@@ -1,7 +1,7 @@
 {
-  "name": "kk-get-flash-hash-dictionary",
+  "name": "kk-binary-librarian",
   "version": "1.0.0",
-  "description": "Tool to fetch all flash hash information.",
+  "description": "Tool to fetch all firmware/bootloader binary from github, returning the sha3_256 hash and base64 strings for each release.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,6 +11,7 @@
   "dependencies": {
     "bytebuffer": "^5.0.1",
     "js-sha3": "^0.7.0",
-    "request": "^2.87.0"
+    "request": "^2.87.0",
+    "request-promise": "^4.2.2"
   }
 }
