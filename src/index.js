@@ -2,7 +2,7 @@ let request = require('request-promise');
 let { sha3_256 } = require('js-sha3');
 let ByteBuffer = require('bytebuffer');
 
-let githubReleaseUrl = 'https://api.github.com/repos/keepkey/keepkey-firmware/releases';
+const githubReleaseUrl = 'https://api.github.com/repos/keepkey/keepkey-firmware/releases';
 
 function options(url, encoding = undefined) {
   return {
@@ -20,11 +20,10 @@ async function getFlashAssets() {
     const response = await request(options(githubReleaseUrl));
     const data = JSON.parse(response);
     const rawPackagedAssets = await findFlashAssets(data);
-    // console.log('final asssets', rawPackagedAssets)
-    console.log('final asssets', JSON.stringify(rawPackagedAssets))
+    return JSON.stringify(rawPackagedAssets);
   }
   catch (error) {
-    return false;
+    console.log('error with getting flash assets', error);
   }
 }
 
@@ -34,13 +33,17 @@ async function findFlashAssets(responseData) {
 
     // pull tag and url from each release to download binary
     for (const jsonData of responseData) {
+      let tagName = jsonData.tag_name;
+      rawData[tagName] = {};
+
       for (const asset of jsonData.assets) {
+        let assetName = asset.name;
         // only download binary (no tar.bz2 or sig)
-        if (asset.name.includes('.bin')) {
-        console.log('Downloading binary from:', jsonData.tag_name, asset.name)
+        if (assetName.includes('.bin')) {
+          console.log('Downloading binary:', tagName, assetName)
           let url = asset.browser_download_url;
-          let padTotal = asset.name.includes('bootstrap') ? 16 : 256;
-          rawData[jsonData.tag_name] = await packageRawAsset(url, asset.name, padTotal);
+          let padTotal = assetName.includes('bootstrap') ? 16 : 256;
+          rawData[tagName][assetName] = await packageRawAsset(url, padTotal);
         }
       }
     }
@@ -48,11 +51,11 @@ async function findFlashAssets(responseData) {
     return rawData;
   }
   catch (error) {
-    console.log('err', error);
+    console.log('error in finding flash assets', error);
   }
 }
 
-async function packageRawAsset(url, name, padTotal) {
+async function packageRawAsset(url, padTotal) {
   try {
     let rawData;
     let rawAsset = {};
@@ -73,18 +76,14 @@ async function packageRawAsset(url, name, padTotal) {
     }
 
     // create hash and base64 string
-    let hash = sha3_256(rawData.toArrayBuffer());
+    rawAsset.hash = sha3_256(rawData.toArrayBuffer());
     // REMOVE SLICE!!
-    let base64 = rawData.toBase64().slice(0, 100);
-    rawAsset[name] = {
-      hash: hash,
-      base64: base64
-    };
+    rawAsset.base64 = rawData.toBase64().slice(0, 100);
     return rawAsset;
   }
   catch (error) {
-    return false;
+    console.log('error in packaging raw assets', error)
   }
 }
 
-module.exports = getFlashAssets();
+module.exports.getFlashAssets = getFlashAssets;
