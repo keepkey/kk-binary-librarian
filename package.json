@@ -1,6 +1,6 @@
 {
   "name": "kk-binary-librarian",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Tool to fetch all firmware/bootloader binary from github, returning the sha3_256 hash and base64 strings for each release.",
   "main": "src/index.js",
   "scripts": {

@@ -1,6 +1,6 @@
-let request = require('request-promise');
-let { sha3_256 } = require('js-sha3');
-let ByteBuffer = require('bytebuffer');
+const request = require('request-promise');
+const { sha3_256 } = require('js-sha3');
+const ByteBuffer = require('bytebuffer');
 
 const githubReleaseUrl = 'https://api.github.com/repos/keepkey/keepkey-firmware/releases';
 
@@ -33,7 +33,7 @@ async function findFlashAssets(responseData) {
 
     // pull tag and url from each release to download binary
     for (const jsonData of responseData) {
-      let tagName = jsonData.tag_name;
+      const tagName = jsonData.tag_name;
       rawData[tagName] = {};
 
       for (const asset of jsonData.assets) {
@@ -41,8 +41,8 @@ async function findFlashAssets(responseData) {
         // only download binary (no tar.bz2 or sig)
         if (assetName.includes('.bin')) {
           console.log('Downloading binary:', tagName, assetName)
-          let url = asset.browser_download_url;
-          let padTotal = assetName.includes('bootstrap') ? 16 : 256;
+          const url = asset.browser_download_url;
+          const padTotal = assetName.includes('bootstrap') ? 16 : 256;
           rawData[tagName][assetName] = await packageRawAsset(url, padTotal);
         }
       }
@@ -59,7 +59,7 @@ async function packageRawAsset(url, padTotal) {
   try {
     let rawData;
     let rawAsset = {};
-    let sectorSize = 1024*padTotal;
+    const sectorSize = 1024*padTotal;
 
     // fetch binary for each tagged release
     const body = await request(options(url, null));
