@@ -6,8 +6,8 @@ const githubReleaseUrl = 'https://api.github.com/repos/keepkey/keepkey-firmware/
 
 function options(url, encoding = undefined) {
   return {
-    url: url,
-    encoding: encoding,
+    url,
+    encoding,
     headers: {
       'User-Agent': 'request',
     }
@@ -77,8 +77,7 @@ async function packageRawAsset(url, padTotal) {
 
     // create hash and base64 string
     rawAsset.hash = sha3_256(rawData.toArrayBuffer());
-    // REMOVE SLICE!!
-    rawAsset.base64 = rawData.toBase64().slice(0, 100);
+    rawAsset.base64 = rawData.toBase64();
     return rawAsset;
   }
   catch (error) {
