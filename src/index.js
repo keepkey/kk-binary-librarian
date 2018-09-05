@@ -23,7 +23,7 @@ async function getFlashAssets() {
     return JSON.stringify(rawPackagedAssets);
   }
   catch (error) {
-    console.log('error with getting flash assets', error);
+    console.log('error with getting flash assets:', error);
   }
 }
 
@@ -51,7 +51,7 @@ async function findFlashAssets(responseData) {
     return rawData;
   }
   catch (error) {
-    console.log('error in finding flash assets', error);
+    console.log('error in finding flash assets:', error);
   }
 }
 
@@ -59,15 +59,15 @@ async function packageRawAsset(url, padTotal) {
   try {
     let rawData;
     let rawAsset = {};
-    const sectorSize = 1024*padTotal;
+    const maxPadding = 1024*padTotal;
 
     // fetch binary for each tagged release
     const body = await request(options(url, null));
 
     // pad out any binary with 0xFFFFFFFF to 256k
     let data = ByteBuffer.wrap(body);
-    if (body.length <= sectorSize) {
-      rawData = ByteBuffer.allocate(sectorSize);
+    if (body.length <= maxPadding) {
+      rawData = ByteBuffer.allocate(maxPadding);
       rawData.fill(0xff);
       rawData.reset();
       data.prependTo(rawData, body.length);
@@ -81,7 +81,7 @@ async function packageRawAsset(url, padTotal) {
     return rawAsset;
   }
   catch (error) {
-    console.log('error in packaging raw assets', error)
+    console.log('error in packaging raw assets:', error)
   }
 }
 
