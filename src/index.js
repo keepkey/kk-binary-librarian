@@ -1,6 +1,7 @@
 const request = require('request-promise');
 const { sha3_256 } = require('js-sha3');
 const ByteBuffer = require('bytebuffer');
+const VALID_BINARY_NAMES = ['variant', 'firmware.mfr', 'bootloader', 'bootstrap'];
 
 const githubReleaseUrl = 'https://api.github.com/repos/keepkey/keepkey-firmware/releases';
 
@@ -38,8 +39,8 @@ async function findFlashAssets(responseData) {
 
       for (const asset of jsonData.assets) {
         let assetName = asset.name;
-        // only download binary (no tar.bz2 or sig)
-        if (assetName.includes('.bin')) {
+        // download mfr firmware, bootstrap, and bootloader (no tar.bz2 or sig)
+        if (validBinary(assetName)) {
           console.log('Downloading binary:', tagName, assetName)
           const url = asset.browser_download_url;
           const padTotal = assetName.includes('bootstrap') ? 16 : 256;
@@ -53,6 +54,10 @@ async function findFlashAssets(responseData) {
   catch (error) {
     console.log('error in finding flash assets:', error);
   }
+}
+
+function validBinary(binaryName) {
+  return VALID_BINARY_NAMES.some(name => binaryName.includes(name));
 }
 
 async function packageRawAsset(url, padTotal) {
